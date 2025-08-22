@@ -1,0 +1,83 @@
+.liw {
+    &__decadeContainer {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    &__newYearBox,
+    &__weekBox {
+        position: relative;
+        text-align: center;
+        color: var(--text-muted);
+        height: var(--size-4-8);
+        max-height: var(--size-4-8);
+        padding: var(--size-4-1) var(--size-4-2);
+        margin: var(--size-4-1);
+        float: left;
+        border: var(--border-width) solid;
+    }
+    &__newYearBox {
+        border-color: var(--background-modifier-border-focus);
+    }
+    &__weekBox {
+        border-color: var(--background-modifier-border);
+    }
+    &__eventMarker:nth-child(n+2) {
+        border-left: var(--border-width) solid var(--background-modifier-border);
+        margin-left: var(--size-4-1);
+        padding-left: var(--size-4-1);
+    }
+    &__futureDate {
+        background-color: var(--background-modifier-border);
+    }
+
+    &__boxPopup {
+        position: absolute;
+        z-index: var(--layer-cover);
+        left: 50%;
+        transform: translateX(-50%);
+        top: 100%;
+        &__isLocked {
+            & .liw__boxPopup__content {
+                box-shadow: var(--input-shadow);
+            }
+        }
+
+        &__content {
+            transform: translateY(var(--size-2-3)); // because the arrow has a 2-3 height
+            background-color: var(--interactive-normal);
+            border-radius: var(--radius-m);
+            width: max-content;
+
+            &__header {
+                border-radius: var(--radius-m);
+                font-size: var(--font-ui-large);
+                font-weight: var(--font-semibold);
+                text-align: left;
+                padding: var(--size-4-1) var(--size-4-2);
+                background-color: var(--interactive-hover);
+            }
+            &__desc {
+                text-align: left;
+                padding: var(--size-4-1) var(--size-4-2);
+            }
+        }
+        
+
+        &__arrow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: var(--size-2-3);
+            height: var(--size-2-3);
+            background-color: var(--interactive-normal);
+            transform: rotate(45deg) translateY(50%);
+        }
+    }
+}
+
+.liwModal {
+    &__errors {
+        color: var(--text-error);
+        margin: var(--size-4-1) 0;
+    }
+}

@@ -1,85 +1,110 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { WorkspaceLeaf, Plugin, ViewState, MarkdownView, TFile } from 'obsidian';
+import { DEFAULT_DATA, LifeinweeksView, VIEW_TYPE_LIFEINWEEKS } from './LifeinweeksView';
+import { FRONTMATTER_KEY, LIFEINWEEKS_ICON } from './constants';
+import { sendNotice } from './utils/notice';
+import { DEFAULT_SETTINGS, LifeinweeksSettings, LifeinweeksSettingTab } from './Settings';
 
-// Remember to rename these classes and interfaces!
+export default class LifeinweeksPlugin extends Plugin {
+	settings: LifeinweeksSettings;
 
-interface MyPluginSettings {
-	mySetting: string;
-}
+	// Map of files and their view mode
+	lifeinweeksFileModes: Record<string, string> = {};
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
+	timer: NodeJS.Timeout | null;
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+	debounceView = (leaf: WorkspaceLeaf) => {
+		this.timer && clearTimeout(this.timer);
+
+		this.timer = setTimeout(() => {
+			this.timer && clearTimeout(this.timer);
+			this.timer = null;
+			this.setLifeinweeksView(leaf);
+		}, 200);
+	}
+
+	clear(): void {
+        this.timer && clearTimeout(this.timer);
+        this.timer = null;
+    }
 
 	async onload() {
 		await this.loadSettings();
+		this.addSettingTab(new LifeinweeksSettingTab(this.app, this));
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+		this.registerView(
+			VIEW_TYPE_LIFEINWEEKS,
+			(leaf) => new LifeinweeksView(leaf, this)
+		);
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
-
-		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
+			id: 'toggle-lifeinweeks-view',
+			name: 'Toggle Life in Weeks View',
 			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
+				const activeFile = this.app.workspace.getActiveFile();
 
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
+				if (!activeFile) return false;
+		
+				const fileIsLifeinweeks = this.isLifeinweeksFile(activeFile);
+		
+				if (checking) {
+					return fileIsLifeinweeks;
+				}
+		
+				const activeView = this.app.workspace.getActiveViewOfType(LifeinweeksView);
+		
+				// Toggle to markdown view
+				if (activeView) {
+					this.lifeinweeksFileModes[activeFile.path] = "markdown";
+					this.setMarkdownView(activeView.leaf);
+				} else if (fileIsLifeinweeks) { // Toggle to Life in Weeks view
+					const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+
+					if (activeView) {
+						this.lifeinweeksFileModes[activeFile.path] = VIEW_TYPE_LIFEINWEEKS;
+						this.setLifeinweeksView(activeView.leaf);
+					}
 				}
 			}
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.registerEvent(this.app.workspace.on('active-leaf-change', leaf => {
+			if (!leaf) return;
+			const file = this.app.workspace.getActiveFile();
+			if (!file || !this.isLifeinweeksFile(file) || this.lifeinweeksFileModes[file.path] === "markdown") return;
 
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
+			const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (!activeView) return;
+			this.debounceView(activeView.leaf);
+		}));
+
+		this.registerEvent(
+			this.app.workspace.on('file-menu', (menu, file, source, leaf) => {
+				if (!['more-options', 'pane-more-options', 'tab-header'].includes(source)) return;
+				if (!(file instanceof TFile) || !(leaf?.view instanceof MarkdownView)) return;
+				if (!this.isLifeinweeksFile(file)) return;
+
+				menu.addItem((item) => {
+					item
+						.setTitle('Enable Life in Weeks view')
+						.setIcon(LIFEINWEEKS_ICON)
+						.setSection('pane')
+						.onClick(() => {
+							this.lifeinweeksFileModes[file.path] = VIEW_TYPE_LIFEINWEEKS;
+							this.setLifeinweeksView(leaf);
+						});
+				});
+			})
+		);
+
+		this.addRibbonIcon(LIFEINWEEKS_ICON, 'Create new Life in Weeks note', () => {
+			this.createAndOpenDrawing();
 		});
 
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+		sendNotice('Life in Weeks plugin loaded!');
 	}
 
-	onunload() {
-
+	async onunload() {
+		this.lifeinweeksFileModes = {};
 	}
 
 	async loadSettings() {
@@ -89,46 +114,51 @@ export default class MyPlugin extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
+
+	async createAndOpenDrawing(): Promise<string> {
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_LIFEINWEEKS);
+
+		const file = await this.app.vault.create(`Life in Weeks.md`, DEFAULT_DATA);
+
+		const leaf = this.app.workspace.getLeaf('tab');
+
+		await leaf.openFile(file, { active: true });
+
+		leaf.setViewState({
+			type: VIEW_TYPE_LIFEINWEEKS,
+			state: leaf.view.getState(),
+		});
+
+		this.app.workspace.revealLeaf(
+			this.app.workspace.getLeavesOfType(VIEW_TYPE_LIFEINWEEKS)[0]
+		);
+
+		return file.path;
+
+	}
+
+	isLifeinweeksFile(file: TFile): boolean {
+		const fileCache = this.app.metadataCache.getFileCache(file);
+		return !!fileCache?.frontmatter && !!fileCache.frontmatter[FRONTMATTER_KEY];
+	}
+
+	async setMarkdownView(leaf: WorkspaceLeaf, focus = true) {
+		await leaf.setViewState(
+			{
+				type: 'markdown',
+				state: leaf.view.getState(),
+				popstate: true,
+			} as ViewState,
+			{ focus }
+		);
+	}
+
+	async setLifeinweeksView(leaf: WorkspaceLeaf) {
+		await leaf.setViewState({
+			type: VIEW_TYPE_LIFEINWEEKS,
+			state: leaf.view.getState(),
+			popstate: true,
+		} as ViewState);
+	}
 }
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
-	}
-}

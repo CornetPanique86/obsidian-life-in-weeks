@@ -1,8 +1,71 @@
-/*
+.liw__decadeContainer {
+  display: flex;
+  flex-wrap: wrap;
+}
+.liw__newYearBox, .liw__weekBox {
+  position: relative;
+  text-align: center;
+  color: var(--text-muted);
+  height: var(--size-4-8);
+  max-height: var(--size-4-8);
+  padding: var(--size-4-1) var(--size-4-2);
+  margin: var(--size-4-1);
+  float: left;
+  border: var(--border-width) solid;
+}
+.liw__newYearBox {
+  border-color: var(--background-modifier-border-focus);
+}
+.liw__weekBox {
+  border-color: var(--background-modifier-border);
+}
+.liw__eventMarker:nth-child(n+2) {
+  border-left: var(--border-width) solid var(--background-modifier-border);
+  margin-left: var(--size-4-1);
+  padding-left: var(--size-4-1);
+}
+.liw__futureDate {
+  background-color: var(--background-modifier-border);
+}
+.liw__boxPopup {
+  position: absolute;
+  z-index: var(--layer-cover);
+  left: 50%;
+  transform: translateX(-50%);
+  top: 100%;
+}
+.liw__boxPopup__isLocked .liw__boxPopup__content {
+  box-shadow: var(--input-shadow);
+}
+.liw__boxPopup__content {
+  transform: translateY(var(--size-2-3));
+  background-color: var(--interactive-normal);
+  border-radius: var(--radius-m);
+  width: max-content;
+}
+.liw__boxPopup__content__header {
+  border-radius: var(--radius-m);
+  font-size: var(--font-ui-large);
+  font-weight: var(--font-semibold);
+  text-align: left;
+  padding: var(--size-4-1) var(--size-4-2);
+  background-color: var(--interactive-hover);
+}
+.liw__boxPopup__content__desc {
+  text-align: left;
+  padding: var(--size-4-1) var(--size-4-2);
+}
+.liw__boxPopup__arrow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--size-2-3);
+  height: var(--size-2-3);
+  background-color: var(--interactive-normal);
+  transform: rotate(45deg) translateY(50%);
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
-
-*/
+.liwModal__errors {
+  color: var(--text-error);
+  margin: var(--size-4-1) 0;
+}
