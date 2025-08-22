@@ -1,6 +1,8 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
+import fs from 'fs';
+import * as sass from 'sass';
 
 const banner =
 `/*
@@ -9,13 +11,28 @@ if you want to view the source, please visit the github repository of this plugi
 */
 `;
 
+const copyMinifiedCSS = {
+	name: 'minify-css',
+	setup: (build) => {
+		// Handle SCSS imports
+        build.onLoad({ filter: /\.scss$/ }, async (args) => {
+            const {css} = sass.compile(args.path);
+            fs.writeFileSync('styles.css', css, {encoding: 'utf-8'});
+            return {
+                contents: '', // Return empty JS content
+                loader: 'js'
+            };
+        });
+	}
+}
+
 const prod = (process.argv[2] === "production");
 
 const context = await esbuild.context({
 	banner: {
 		js: banner,
 	},
-	entryPoints: ["main.ts"],
+	entryPoints: ["src/main.ts"],
 	bundle: true,
 	external: [
 		"obsidian",
@@ -39,6 +56,7 @@ const context = await esbuild.context({
 	treeShaking: true,
 	outfile: "main.js",
 	minify: prod,
+	plugins: [copyMinifiedCSS]
 });
 
 if (prod) {
