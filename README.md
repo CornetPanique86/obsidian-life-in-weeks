@@ -4,6 +4,8 @@ Create a Life in Weeks note that displays a grid of weeks, and add events to tho
 
 Inspired by [Buster Benson's Life in Weeks](https://busterbenson.com/life-in-weeks), and the idea is from [Wait But Why](https://waitbutwhy.com/2014/05/life-weeks.html).
 
+<img width="1576" height="1032" alt="life-in-weeks-demo" src="https://github.com/user-attachments/assets/94e158c8-bc7a-469f-8315-ef3b0afa4af5" />
+
 ## Usage
 
 **Use the generator using the ribbon icon 'Create new Life in Weeks note'.** If not, format your note this way:
@@ -53,5 +55,7 @@ Contributions are welcome! Please feel free to submit a Pull Request or open an 
 ## Credits
 
 `src/components/FadeInOut.tsx`: https://codesandbox.io/p/sandbox/react-fadein-out-transition-component-eww6j
+
 `src/hooks/useMarkdownRenderer.ts`: https://github.com/Quorafind/Obsidian-Card-Library/blob/main/src/hooks/useMarkdownRenderer.ts
+
 `src/LifeinweeksView.tsx`: https://github.com/korbinjoe/obsidian-textfileview-plugin-sample
