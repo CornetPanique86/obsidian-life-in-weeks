@@ -135,13 +135,15 @@ const RenderEventDescriptions = ({ events, setEventDescHtmls, app, view, path }:
     };
   }, []);
 
-  return events.map(event => (
-    <Fragment key={event.date}>
-      <div className="liw__boxPopup__content__header">
-        {event.date}
-      </div>
-      {event.desc && <div ref={el => { eventDescRefs.current[event.date] = el; }} className="liw__boxPopup__content__desc">
-        </div>}
-    </Fragment>
-  ));
+  return <Fragment>
+    {events.map(event => (
+      <Fragment key={event.date}>
+        <div className="liw__boxPopup__content__header">
+          {event.date}
+        </div>
+        {event.desc && <div ref={el => { eventDescRefs.current[event.date] = el; }} className="liw__boxPopup__content__desc">
+          </div>}
+      </Fragment>
+    ))}
+  </Fragment>
 }

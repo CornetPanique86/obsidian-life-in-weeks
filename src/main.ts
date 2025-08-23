@@ -1,8 +1,8 @@
 import { WorkspaceLeaf, Plugin, ViewState, MarkdownView, TFile } from 'obsidian';
 import { DEFAULT_DATA, LifeinweeksView, VIEW_TYPE_LIFEINWEEKS } from './LifeinweeksView';
 import { FRONTMATTER_KEY, LIFEINWEEKS_ICON } from './constants';
-import { sendNotice } from './utils/notice';
 import { DEFAULT_SETTINGS, LifeinweeksSettings, LifeinweeksSettingTab } from './Settings';
+import { t } from './lang/helpers';
 
 export default class LifeinweeksPlugin extends Plugin {
 	settings: LifeinweeksSettings;
@@ -38,7 +38,7 @@ export default class LifeinweeksPlugin extends Plugin {
 
 		this.addCommand({
 			id: 'toggle-lifeinweeks-view',
-			name: 'Toggle Life in Weeks View',
+			name: t('Toggle Life in Weeks View'),
 			checkCallback: (checking: boolean) => {
 				const activeFile = this.app.workspace.getActiveFile();
 
@@ -67,6 +67,27 @@ export default class LifeinweeksPlugin extends Plugin {
 			}
 		});
 
+		this.addCommand({
+			id: 'open-configuration',
+			name: t('Open configuration'),
+			checkCallback: (checking: boolean) => {
+				const activeFile = this.app.workspace.getActiveFile();
+
+				if (!activeFile) return false;
+		
+				const fileIsLifeinweeks = this.isLifeinweeksFile(activeFile);
+		
+				if (checking) {
+					return fileIsLifeinweeks;
+				}
+		
+				const activeView = this.app.workspace.getActiveViewOfType(LifeinweeksView);
+				if (!activeView) return;
+
+				activeView.openConfiguration();
+			}
+		});
+
 		this.registerEvent(this.app.workspace.on('active-leaf-change', leaf => {
 			if (!leaf) return;
 			const file = this.app.workspace.getActiveFile();
@@ -85,7 +106,7 @@ export default class LifeinweeksPlugin extends Plugin {
 
 				menu.addItem((item) => {
 					item
-						.setTitle('Enable Life in Weeks view')
+						.setTitle(t('Enable Life in Weeks view'))
 						.setIcon(LIFEINWEEKS_ICON)
 						.setSection('pane')
 						.onClick(() => {
@@ -96,11 +117,9 @@ export default class LifeinweeksPlugin extends Plugin {
 			})
 		);
 
-		this.addRibbonIcon(LIFEINWEEKS_ICON, 'Create new Life in Weeks note', () => {
+		this.addRibbonIcon(LIFEINWEEKS_ICON, t('Create new Life in Weeks note'), () => {
 			this.createAndOpenDrawing();
 		});
-
-		sendNotice('Life in Weeks plugin loaded!');
 	}
 
 	async onunload() {
@@ -118,7 +137,7 @@ export default class LifeinweeksPlugin extends Plugin {
 	async createAndOpenDrawing(): Promise<string> {
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE_LIFEINWEEKS);
 
-		const file = await this.app.vault.create(`Life in Weeks.md`, DEFAULT_DATA);
+		const file = await this.app.vault.create(`${t('Life in Weeks')}.md`, DEFAULT_DATA);
 
 		const leaf = this.app.workspace.getLeaf('tab');
 

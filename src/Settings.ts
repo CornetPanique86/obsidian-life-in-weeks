@@ -1,5 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import LifeinweeksPlugin from "./main";
+import { t } from "./lang/helpers";
 
 export interface LifeinweeksSettings {
     showConfigurationBtn: boolean;
@@ -24,10 +25,12 @@ export class LifeinweeksSettingTab extends PluginSettingTab {
         
         containerEl.empty();
 
-        new Setting(containerEl).setName("Document Header Buttons").setHeading();
+        // can't add a header because of guidelines
+        // new Setting(containerEl).setName("Document Header Buttons").setHeading();
 
         new Setting(containerEl)  
-          .setName('Show Open Configuration')  
+          .setName(t('Show') + ' ' + t('Open configuration'))
+          .setDesc(t('As a button in the document header'))
           .addToggle(toggle => toggle  
              .setValue(this.plugin.settings.showConfigurationBtn)  
              .onChange(async (value) => {  
@@ -38,7 +41,8 @@ export class LifeinweeksSettingTab extends PluginSettingTab {
           );
 
           new Setting(containerEl)
-            .setName('Show Open in Markdown')
+            .setName(t('Show') + ' ' + t('Open as markdown'))
+            .setDesc(t('As a button in the document header'))
             .addToggle(toggle => toggle
               .setValue(this.plugin.settings.showOpenInMarkdownBtn)
               .onChange(async (value) => {

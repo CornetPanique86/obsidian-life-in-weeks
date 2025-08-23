@@ -1,10 +1,11 @@
 import { Menu, TFile, TextFileView, WorkspaceLeaf, debounce } from "obsidian";
 import { createRoot, Root } from "react-dom/client";
 import CustomViewContent from './components/CustomViewContent';
-import { FRONTMATTER_KEY } from "./constants";
+import { FRONTMATTER_KEY, LIFEINWEEKS_ICON } from "./constants";
 import { LifeEntries, LifeinweeksConfig, parseLifeInWeeksMarkdown } from "./utils/markdownParser";
 import LifeinweeksPlugin from "./main";
 import { ConfigurationModal } from "./ConfigurationModal";
+import { t } from "./lang/helpers";
 
 export const VIEW_TYPE_LIFEINWEEKS = "lifeinweeks";
 
@@ -12,8 +13,8 @@ export const DEFAULT_DATA = `---
 ${FRONTMATTER_KEY}: true
 ---
 
-## ${window.moment().format('YYYY-MM-DD')}: I discover the Life in Weeks plugin.
-It was an *interesting* find.
+## ${window.moment().format('YYYY-MM-DD')}: ${t('I discover the Life in Weeks plugin.')}
+${t('It was an *interesting* find.')}
 
 %% lifeinweeks:settings
 \`\`\`
@@ -26,8 +27,8 @@ It was an *interesting* find.
         "text": "🎂 %s"
     },
     "decades": {
-        "0": "Early Years",
-        "1": "Teens"
+        "0": "${t('Early Years')}",
+        "1": "${t('Teens')}"
     }
 }
 \`\`\`
@@ -51,6 +52,8 @@ export class LifeinweeksView extends TextFileView {
     data: string = DEFAULT_DATA;
 
     declare file: TFile;
+    
+    icon = LIFEINWEEKS_ICON;
 
     timer: NodeJS.Timeout | null;
 
@@ -144,7 +147,7 @@ export class LifeinweeksView extends TextFileView {
         menu
             .addItem((item) => {
                 item
-                    .setTitle('Open as markdown')
+                    .setTitle(t('Open as markdown'))
                     .setIcon("pencil-line")
                     .setSection('pane')
                     .onClick(() => {
@@ -154,11 +157,11 @@ export class LifeinweeksView extends TextFileView {
             })
             .addItem((item) => {
                 item
-                    .setTitle('Open configuration')
+                    .setTitle(t('Open configuration'))
                     .setIcon('gear')
                     .setSection('pane')
                     .onClick(() => {
-                        // this.getBoardSettings();
+                        this.openConfiguration();
                     });
             });
 
@@ -173,7 +176,7 @@ export class LifeinweeksView extends TextFileView {
         if (this.plugin.settings.showConfigurationBtn) {
             this.addAction(
                 'gear',
-                'Open configuration',
+                t('Open configuration'),
                 () => {
                     this.openConfiguration();
                 }
@@ -183,7 +186,7 @@ export class LifeinweeksView extends TextFileView {
         if (this.plugin.settings.showOpenInMarkdownBtn) {
             this.addAction(
                 'pencil-line',
-                'Open in markdown',
+                t('Open as markdown'),
                 () => {
                     this.plugin.lifeinweeksFileModes[this.file.path] = "markdown";
                     this.plugin.setMarkdownView(this.leaf);

@@ -1,5 +1,6 @@
 import { App, Modal, Setting } from 'obsidian';
 import { LifeinweeksConfig } from './utils/markdownParser';
+import { t } from './lang/helpers';
 
 export class ConfigurationModal extends Modal {
     constructor(app: App, title: string, config: LifeinweeksConfig, onSubmit: (result: LifeinweeksConfig) => void) {
@@ -19,7 +20,7 @@ export class ConfigurationModal extends Modal {
         this.setTitle(title);
 
         new Setting(this.contentEl)
-            .setName('Starting date')
+            .setName(t('Starting date'))
             .addText((text) =>
                 text
                     .setPlaceholder('YYYY-MM-DD')
@@ -30,7 +31,7 @@ export class ConfigurationModal extends Modal {
             );
 
         new Setting(this.contentEl)
-            .setName('Ending year')
+            .setName(t('Ending year'))
             .addText((text) =>
                 text
                     .setPlaceholder('YYYY')
@@ -41,7 +42,7 @@ export class ConfigurationModal extends Modal {
             );
 
         new Setting(this.contentEl)
-            .setName('Show birthday')
+            .setName(t('Show birthday'))
             .addToggle(toggle => toggle
                 .setValue(config.birthday?.show ?? true)
                 .onChange(value => {
@@ -50,7 +51,7 @@ export class ConfigurationModal extends Modal {
             );
 
         new Setting(this.contentEl)
-            .setName('Birthday')
+            .setName(t('Birthday'))
             .addText((text) =>
                 text
                     .setPlaceholder('MM-DD')
@@ -61,8 +62,8 @@ export class ConfigurationModal extends Modal {
             );
 
         new Setting(this.contentEl)
-            .setName('Birthday display text')
-            .setDesc('Use %s for the age placeholder')
+            .setName(t('Birthday display text'))
+            .setDesc(t('Use %s for the age placeholder'))
             .addText((text) =>
                 text
                     .setPlaceholder('🎂 %s')
@@ -72,7 +73,7 @@ export class ConfigurationModal extends Modal {
                     })
             );
 
-        new Setting(this.contentEl).setName("Decades text").setHeading();
+        new Setting(this.contentEl).setName(t("Decades text")).setHeading();
 
         const startYear = config.startDate ? parseInt(config.startDate.substring(0, 4), 10) : undefined;
         const decades = (config.endYear && startYear)
@@ -80,7 +81,7 @@ export class ConfigurationModal extends Modal {
             : 10;
         for (let i = 0 ; i < decades ; i++) {
             new Setting(this.contentEl)
-                .setName(`Decade ${i}`)
+                .setName(`${t('Decade')} ${i}`)
                 .addText((text) =>
                     text
                         .setPlaceholder(i + '0s')
@@ -98,21 +99,21 @@ export class ConfigurationModal extends Modal {
         new Setting(this.contentEl)
           .addButton((btn) =>
             btn
-              .setButtonText('Submit')
+              .setButtonText(t('Submit'))
               .setCta()
               .onClick(() => {
                 const errors = [];
                 if (result.startDate && !/^\d{4}-\d{2}-\d{2}$/.test(result.startDate)) {
-                    errors.push("Start date must be in YYYY-MM-DD format.");
+                    errors.push(t("Start date must be in YYYY-MM-DD format."));
                 }
                 if (result.endYear && !/^\d{4}$/.test(result.endYear) && !parseInt(result.endYear)) {
-                    errors.push("End year must be a valid year.");
+                    errors.push(t("End year must be a valid year."));
                 }
                 if (result.birthday.date && !/^\d{2}-\d{2}$/.test(result.birthday.date)) {
-                    errors.push("Birthday must be in MM-DD format.");
+                    errors.push(t("Birthday must be in MM-DD format."));
                 }
                 if (errors.length > 0) {
-                    errorsContainer.setText("Submit failed:\n" + errors.join("\n"));
+                    errorsContainer.setText(t("Submit failed:") + "\n" + errors.join("\n"));
                     return;
                 }
 
