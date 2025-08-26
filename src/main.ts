@@ -88,6 +88,12 @@ export default class LifeinweeksPlugin extends Plugin {
 			}
 		});
 
+		this.addCommand({
+			id: 'create-life-in-weeks-note',
+			name: t('Create new Life in Weeks note'),
+			callback: () => this.createAndOpenDrawing(),
+		});
+
 		this.registerEvent(this.app.workspace.on('active-leaf-change', leaf => {
 			if (!leaf) return;
 			const file = this.app.workspace.getActiveFile();

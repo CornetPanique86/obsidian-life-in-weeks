@@ -46,7 +46,7 @@
             transform: translateY(var(--size-2-3)); // because the arrow has a 2-3 height
             background-color: var(--interactive-normal);
             border-radius: var(--radius-m);
-            width: max-content;
+            width: fit-content;
 
             &__header {
                 border-radius: var(--radius-m);

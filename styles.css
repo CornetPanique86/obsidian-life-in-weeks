@@ -41,7 +41,7 @@
   transform: translateY(var(--size-2-3));
   background-color: var(--interactive-normal);
   border-radius: var(--radius-m);
-  width: max-content;
+  width: fit-content;
 }
 .liw__boxPopup__content__header {
   border-radius: var(--radius-m);
