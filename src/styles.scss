@@ -33,9 +33,31 @@
     &__boxPopup {
         position: absolute;
         z-index: var(--layer-cover);
-        left: 50%;
-        transform: translateX(-50%);
         top: 100%;
+        
+        &__center {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        &__left {
+            right: auto;
+            left: 0;
+
+            & .liw__boxPopup__arrow {
+                right: auto;
+                left: 10%;
+            }
+        }
+        &__right {
+            left: auto;
+            right: 0;
+
+            & .liw__boxPopup__arrow {
+                left: auto;
+                right: 10%;
+            }
+        }
+
         &__isLocked {
             & .liw__boxPopup__content {
                 box-shadow: var(--input-shadow);
@@ -46,7 +68,8 @@
             transform: translateY(var(--size-2-3)); // because the arrow has a 2-3 height
             background-color: var(--interactive-normal);
             border-radius: var(--radius-m);
-            width: fit-content;
+            max-width: 45ch;
+            width: max-content;
 
             &__header {
                 border-radius: var(--radius-m);
@@ -67,10 +90,10 @@
             position: absolute;
             top: 0;
             left: 50%;
+            transform: rotate(45deg) translateY(50%);
             width: var(--size-2-3);
             height: var(--size-2-3);
-            background-color: var(--interactive-normal);
-            transform: rotate(45deg) translateY(50%);
+            background-color: var(--interactive-hover);
         }
     }
 }

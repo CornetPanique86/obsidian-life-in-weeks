@@ -29,6 +29,17 @@ const CustomViewContent = ({ title, lifeEntries, config, app, view, path }: Prop
         );
         if (isOutside) {
           setLockedBox(null);
+        } else if ((e.target as HTMLElement).classList.contains("internal-link")) {
+          const el = e.target as HTMLAnchorElement;
+          const href = el.getAttribute('data-href');
+          if (!href) return;
+          const destination = app.metadataCache.getFirstLinkpathDest(href, path);
+          if (!destination) {
+            el.classList.add('is-unresolved');
+            return;
+          }
+
+          app.workspace.openLinkText(href, path);
         }
       };
 
@@ -110,7 +121,7 @@ const CustomViewContent = ({ title, lifeEntries, config, app, view, path }: Prop
                               view={view}
                               path={path}
                             />
-                            : <div className="liw__weekBox liw__futureDate"></div>;
+                            : <div key={weekDate} className="liw__weekBox liw__futureDate"></div>;
                         })}
                       </Fragment>
                     );

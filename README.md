@@ -22,6 +22,20 @@ Inspired by [Buster Benson's Life in Weeks](https://busterbenson.com/life-in-wee
 %%
 ```
 
+### Adding events
+
+```md
+## YYYY-MM-DD: Event name
+Event description
+```
+
+You can omit the colon. Example:
+
+```md
+## 2000-01-01 Y2K
+That was *scary*! (Yeah, you can use markdown, but don't put a H2 or H1 as it will mess up the parsing.)
+```
+
 ### Supported languages
 
 English, French, Russian

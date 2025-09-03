@@ -1,4 +1,4 @@
-import { Component, CSSProperties, ReactNode } from "react";
+import { Component, CSSProperties, ReactNode, forwardRef, Ref } from "react";
 
 const UNMOUNTED = "unmounted";
 const EXITED = "exited";
@@ -28,10 +28,9 @@ const transitionStyles: Record<TransitionStatus, CSSProperties> = {
   exited: { opacity: 0 }
 };
 
-class FadeInOut extends Component<Props, State> {
-  constructor(props: Props) {
+class FadeInOutInner extends Component<Props & { forwardedRef?: Ref<HTMLDivElement> }, State> {
+  constructor(props: Props & { forwardedRef?: Ref<HTMLDivElement> }) {
     super(props);
-
     this.state = { status: UNMOUNTED };
   }
 
@@ -44,7 +43,7 @@ class FadeInOut extends Component<Props, State> {
 
   componentDidUpdate(prevProps: Props): void {
     let nextStatus: TransitionStatus | null = null;
-    if (prevProps !== this.props) {
+    if (prevProps.show !== this.props.show) {
       const { status } = this.state;
       if (this.props.show) {
         if (status !== ENTERING && status !== ENTERED) {
@@ -74,7 +73,7 @@ class FadeInOut extends Component<Props, State> {
   performEnter(): void {
     this.setState({ status: ENTERING }, () => {
       setTimeout(() => {
-        this.setState({ status: ENTERED }, () => {});
+        this.setState({ status: ENTERED });
       }, 0);
     });
   }
@@ -83,25 +82,24 @@ class FadeInOut extends Component<Props, State> {
     const { duration } = this.props;
     this.setState({ status: EXITING }, () => {
       setTimeout(() => {
-        this.setState({ status: EXITED }, () => {});
+        this.setState({ status: EXITED });
       }, duration);
     });
   }
 
   render(): ReactNode {
     const { status } = this.state;
-    if (status === UNMOUNTED) {
-      return null;
-    }
+    if (status === UNMOUNTED) return null;
 
-    const { children, duration, className, style } = this.props;
+    const { children, duration, className, style, forwardedRef } = this.props;
+
     return (
       <div
+        ref={forwardedRef}
         className={className}
         style={{
           ...style,
           transition: `opacity ${duration}ms ease-in-out`,
-          opacity: 0.1,
           ...transitionStyles[status]
         }}
       >
@@ -110,5 +108,10 @@ class FadeInOut extends Component<Props, State> {
     );
   }
 }
+
+// ✅ Wrap with forwardRef
+const FadeInOut = forwardRef<HTMLDivElement, Props>((props, ref) => (
+  <FadeInOutInner {...props} forwardedRef={ref} />
+));
 
 export default FadeInOut;

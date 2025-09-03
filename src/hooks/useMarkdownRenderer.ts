@@ -1,6 +1,6 @@
 import { App, MarkdownRenderer } from 'obsidian';
 import { useCallback, useEffect, useRef } from 'react';
-import { LifeinweeksView, VIEW_TYPE_LIFEINWEEKS } from 'src/LifeinweeksView';
+import { LifeinweeksView } from 'src/LifeinweeksView';
 
 export default function useMarkdownRenderer(app: App, view: LifeinweeksView) {
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -20,28 +20,6 @@ export default function useMarkdownRenderer(app: App, view: LifeinweeksView) {
       await MarkdownRenderer.render(app, target, contentRef.current, path, view);
 
       contentRef.current?.toggleClass(['markdown-rendered'], true);
-
-      const embeds = contentRef.current?.querySelectorAll('.internal-link');
-      embeds?.forEach((embed) => {
-        const el = embed as HTMLAnchorElement;
-        const href = el.getAttribute('data-href');
-        if (!href) return;
-
-        const destination = app.metadataCache.getFirstLinkpathDest(href, path);
-        if (!destination) embed.classList.add('is-unresolved');
-
-        el.addEventListener('mouseover', (e) => {
-          e.stopPropagation();
-          app.workspace.trigger('hover-link', {
-            event: e,
-            source: VIEW_TYPE_LIFEINWEEKS,
-            hoverParent: view.containerEl,
-            targetEl: el,
-            linktext: href,
-            sourcePath: el.href,
-          });
-        });
-      });
     }, 
     [app, view],
   );
