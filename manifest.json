@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-life-in-weeks",
 	"name": "Life in Weeks",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "Show your life and its events in weeks. Inspired by Buster Benson's Life in Weeks.",
 	"author": "XXL Steve",
